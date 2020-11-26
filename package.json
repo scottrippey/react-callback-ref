@@ -1,0 +1,27 @@
+{
+  "name": "react-usecallbackref",
+  "version": "1.0.0",
+  "description": "Same as React's useCallback, but always returns the same function reference",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scottrippey/react-useCallbackRef.git"
+  },
+  "keywords": [
+    "react",
+    "hooks",
+    "usecallback",
+    "memo",
+    "performance",
+    "optimization"
+  ],
+  "author": "Scott Rippey",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/scottrippey/react-useCallbackRef/issues"
+  },
+  "homepage": "https://github.com/scottrippey/react-useCallbackRef#readme"
+}
