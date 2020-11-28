@@ -1,6 +1,6 @@
-import { useRef } from 'react';
+import { useRef } from "react";
 
-import { CallbackRef, createCallbackRef } from './createCallbackRef';
+import { CallbackRef, createCallbackRef } from "./createCallbackRef";
 
 /**
  *
@@ -22,8 +22,10 @@ export function useCallbackRefs<TProps extends object>(props: TProps): TProps {
     removeFromArray(extraProps, prop);
     const currentValue = clonedProps[prop];
 
-    if (typeof value === 'function') {
-      const callbackRef = currentValue as unknown as CallbackRef<Function> | undefined;
+    if (typeof value === "function") {
+      const callbackRef = (currentValue as unknown) as
+        | CallbackRef<Function>
+        | undefined;
       if (callbackRef) {
         callbackRef.update(value);
       } else {
