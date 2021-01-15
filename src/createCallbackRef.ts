@@ -9,14 +9,15 @@ export function createCallbackRef<TCallback extends Function>(
   callback: TCallback
 ): CallbackRef<TCallback> {
   let current = callback;
-  return (Object.assign(
-    function callbackRef(...args: unknown[]) {
-      return current(...args);
-    },
-    {
-      update(newCallback: TCallback) {
-        current = newCallback;
-      },
-    }
-  ) as unknown) as CallbackRef<TCallback>;
+
+  // @ts-ignore - The generics are not easy to appease!
+  const callbackRef: CallbackRef<TCallback> = (...args) => {
+    return current(...args);
+  };
+
+  callbackRef.update = (newCallback: TCallback) => {
+    current = newCallback;
+  };
+
+  return callbackRef;
 }

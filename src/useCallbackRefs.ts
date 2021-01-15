@@ -7,38 +7,41 @@ import { CallbackRef, createCallbackRef } from "./createCallbackRef";
  */
 export function useCallbackRefs<TProps extends object>(props: TProps): TProps {
   const resultRef = useRef<TProps>();
+
   if (!resultRef.current) {
     resultRef.current = {} as TProps;
   }
 
   const clonedProps = resultRef.current;
 
-  const extraProps = Object.keys(resultRef.current);
+  const extraProps = Object.keys(resultRef.current) as (keyof TProps)[];
+  const newProps = Object.keys(props) as (keyof TProps)[];
 
-  for (const _prop of Object.keys(props)) {
-    const prop = _prop as keyof TProps;
-    const value = props[prop];
-
+  for (const prop of newProps) {
     removeFromArray(extraProps, prop);
-    const currentValue = clonedProps[prop];
 
-    if (typeof value === "function") {
-      const callbackRef = (currentValue as unknown) as
-        | CallbackRef<Function>
-        | undefined;
-      if (callbackRef) {
-        callbackRef.update(value);
+    const newValue = props[prop];
+    const currentValue = clonedProps[prop] as unknown;
+
+    if (typeof newValue === "function") {
+      const callbackRef = currentValue as CallbackRef<Function> | undefined;
+      if (
+        // Make sure it's a CallbackRef:
+        typeof callbackRef === "function" &&
+        typeof callbackRef.update === "function"
+      ) {
+        callbackRef.update(newValue);
       } else {
-        clonedProps[prop] = createCallbackRef(value);
+        clonedProps[prop] = createCallbackRef(newValue);
       }
-    } else if (value !== currentValue) {
-      clonedProps[prop] = value;
+    } else {
+      clonedProps[prop] = newValue;
     }
   }
 
   // Clean up dropped props:
   for (const extraProp of extraProps) {
-    delete clonedProps[extraProp as keyof TProps];
+    delete clonedProps[extraProp];
   }
 
   return clonedProps;

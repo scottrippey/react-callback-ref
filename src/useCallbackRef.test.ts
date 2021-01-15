@@ -6,54 +6,62 @@ describe("useCallbackRef", () => {
     expect(typeof useCallbackRef).toBe("function");
   });
 
-  let cb = jest.fn((...args) => args[0]);
-  let result: HookResult<jest.Mock>;
-  let rerender: (newProps?: { cb: jest.Mock }) => void;
+  let callback = jest.fn((...args) => args);
+  let callbackRef: jest.Mock;
+  let rerender: (newCallback?: jest.Mock) => void;
   beforeEach(() => {
-    cb.mockClear();
-    const rendered = renderHook(({ cb }) => useCallbackRef(cb), {
-      initialProps: { cb },
-    });
-    ({ result, rerender } = rendered);
+    jest.clearAllMocks();
+
+    rerender = renderHook(
+      (cb) => {
+        callbackRef = useCallbackRef(cb);
+      },
+      { initialProps: callback }
+    ).rerender;
   });
 
   it("should return a new function", () => {
-    expect(typeof result.current).toEqual("function");
-    expect(result.current).not.toBe(cb);
-    expect(cb).not.toHaveBeenCalled();
+    expect(typeof callbackRef).toEqual("function");
+    expect(callbackRef).not.toBe(callback);
+    expect(callback).not.toHaveBeenCalled();
   });
-  it("calling the function should call the original function", () => {
-    result.current();
-    expect(cb).toHaveBeenCalled();
+
+  it("calling the callbackRef should call the original callback", () => {
+    callbackRef();
+    expect(callback).toHaveBeenCalled();
   });
+
   it("all params and return value should be passed through", () => {
-    const returnValue = result.current(1, 2, 3);
-    expect(cb).toHaveBeenCalledWith(1, 2, 3);
-    expect(returnValue).toEqual(1);
+    const returnValue = callbackRef(1, 2, 3);
+    expect(callback).toHaveBeenCalledWith(1, 2, 3);
+    expect(returnValue).toEqual([1, 2, 3]);
   });
+
   describe("when the callback is updated", () => {
-    let newCb = jest.fn();
-    let originalCallbackRef: typeof result.current;
+    let newCallback = jest.fn();
+    let originalCallbackRef: typeof callbackRef;
     beforeEach(() => {
-      newCb.mockClear();
-      originalCallbackRef = result.current;
-      rerender({ cb: newCb });
+      originalCallbackRef = callbackRef;
+      rerender(newCallback);
     });
+
     it("the callback ref doesn't change", () => {
-      expect(originalCallbackRef).toBe(result.current);
+      expect(callbackRef).toBe(originalCallbackRef);
     });
-    it("calling the new callback ref only calls the new callback", () => {
-      result.current();
-      expect(cb).not.toHaveBeenCalled();
-      expect(newCb).toHaveBeenCalled();
+
+    it("calling the callbackRef only calls the new callback", () => {
+      callbackRef();
+      expect(callback).not.toHaveBeenCalled();
+      expect(newCallback).toHaveBeenCalled();
     });
+
     it("same goes for the 3rd call, etc", () => {
-      const thirdCb = jest.fn();
-      rerender({ cb: thirdCb });
-      result.current();
-      expect(cb).not.toHaveBeenCalled();
-      expect(newCb).not.toHaveBeenCalled();
-      expect(thirdCb).toHaveBeenCalled();
+      const thirdCallback = jest.fn();
+      rerender(thirdCallback);
+      callbackRef();
+      expect(callback).not.toHaveBeenCalled();
+      expect(newCallback).not.toHaveBeenCalled();
+      expect(thirdCallback).toHaveBeenCalled();
     });
   });
 });
