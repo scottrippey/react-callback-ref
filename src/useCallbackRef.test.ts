@@ -1,4 +1,5 @@
-import { renderHook, HookResult } from "@testing-library/react-hooks";
+import { renderHook } from "@testing-library/react-hooks";
+
 import { useCallbackRef } from "./useCallbackRef";
 
 describe("useCallbackRef", () => {

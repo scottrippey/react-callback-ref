@@ -2,6 +2,24 @@ import { runPerfTests } from "./performanceTester";
 import "./toBeNear";
 
 describe("runPerfTests", () => {
+  it("same vs same", () => {
+    const { results } = runPerfTests({
+      for1000_1: () => () => {
+        let dummy = 0;
+        for (let i = 0; i < 1000; i++) {
+          dummy += dummy;
+        }
+      },
+      for1000_2: () => () => {
+        let dummy = 0;
+        for (let i = 0; i < 1000; i++) {
+          dummy += dummy;
+        }
+      },
+    });
+    console.log(results);
+  });
+
   it("simple for loops", () => {
     const results = runPerfTests({
       for1000: () => () => {
