@@ -1,6 +1,8 @@
 import { useRef } from "react";
 
-import { CallbackRef, createCallbackRef } from "./createCallbackRef";
+export type CallbackRef<TCallback extends Function> = TCallback & {
+  update(newCallback: TCallback): void;
+};
 
 /**
  *
@@ -14,17 +16,17 @@ export function useCallbackRefs<TProps extends object>(props: TProps): TProps {
 
   const clonedProps = resultRef.current;
 
-  const extraProps = Object.keys(resultRef.current) as (keyof TProps)[];
-  const newProps = Object.keys(props) as (keyof TProps)[];
+  const extraProps = Object.keys(resultRef.current) as Array<keyof TProps>;
+  const newProps = Object.keys(props) as Array<keyof TProps>;
 
   for (const prop of newProps) {
     removeFromArray(extraProps, prop);
 
-    const newValue = props[prop];
-    const currentValue = clonedProps[prop] as unknown;
+    let newValue = props[prop];
+    const previousValue = clonedProps[prop] as unknown;
 
     if (typeof newValue === "function") {
-      const callbackRef = currentValue as CallbackRef<Function> | undefined;
+      let callbackRef = previousValue as CallbackRef<Function> | undefined;
       if (
         // Make sure it's a CallbackRef:
         typeof callbackRef === "function" &&
@@ -32,7 +34,13 @@ export function useCallbackRefs<TProps extends object>(props: TProps): TProps {
       ) {
         callbackRef.update(newValue);
       } else {
-        clonedProps[prop] = createCallbackRef(newValue);
+        // Create the callback ref:
+        let callback: Function = newValue;
+        // @ts-ignore
+        callbackRef = (...args) => callback(...args);
+        callbackRef!.update = (cb) => (callback = cb);
+        // @ts-ignore
+        clonedProps[prop] = callbackRef;
       }
     } else {
       clonedProps[prop] = newValue;

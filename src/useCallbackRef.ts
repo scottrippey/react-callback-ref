@@ -1,5 +1,9 @@
 import { useRef } from "react";
 
+export type CallbackRef<TCallback extends Function> = TCallback & {
+  update(newCallback: TCallback): void;
+};
+
 /**
  * Behaves exactly like `useCallback`, with 2 differences:
  * - Dependency list not required
@@ -8,7 +12,7 @@ import { useRef } from "react";
  *   This is extremely useful for memoization.
  */
 export function useCallbackRef<TCallback extends Function>(callback: TCallback): TCallback {
-  const wrapper = useRef<TCallback & { update(latestCallback: TCallback): void }>();
+  const wrapper = useRef<CallbackRef<TCallback>>();
 
   // Create or update the callback wrapper:
   if (!wrapper.current) {
