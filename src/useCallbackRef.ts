@@ -2,14 +2,13 @@ import { useRef } from "react";
 
 /**
  * Behaves exactly like `useCallback`, with 2 differences:
- * - No dependency list required
- * - The returned callback will ALWAYS be the same exact reference,
- *   even though calling it will always call the latest callback.
+ * - Dependency list not required
+ * - It returns a callback wrapper that will ALWAYS be the same exact reference,
+ *   and calling it will always call the latest callback.
  *   This is extremely useful for memoization.
  */
 export function useCallbackRef<TCallback extends Function>(callback: TCallback): TCallback {
-  type CallbackWrapper = TCallback & { update(latestCallback: TCallback): void };
-  const wrapper = useRef<CallbackWrapper>();
+  const wrapper = useRef<TCallback & { update(latestCallback: TCallback): void }>();
 
   // Create or update the callback wrapper:
   if (!wrapper.current) {
