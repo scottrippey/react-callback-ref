@@ -1,11 +1,7 @@
-import { renderHook, HookResult } from "@testing-library/react-hooks";
+import { renderHook } from "@testing-library/react-hooks";
 import { useCallbackRef } from "./useCallbackRef";
 
 describe("useCallbackRef", () => {
-  it("is a function", () => {
-    expect(typeof useCallbackRef).toBe("function");
-  });
-
   let callback = jest.fn((...args) => args);
   let callbackRef: jest.Mock;
   let rerender: (newCallback?: jest.Mock) => void;
