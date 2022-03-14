@@ -1,7 +1,7 @@
 import { useRef } from "react";
 
 export type CallbackRef<TCallback extends Function> = TCallback & {
-  update(newCallback: TCallback): void;
+  callback: TCallback;
 };
 
 /**
@@ -14,14 +14,11 @@ export type CallbackRef<TCallback extends Function> = TCallback & {
 export function useCallbackRef<TCallback extends Function>(callback: TCallback): TCallback {
   const wrapper = useRef<CallbackRef<TCallback>>();
 
-  // Create or update the callback wrapper:
   if (!wrapper.current) {
     // @ts-ignore - The generics are not easy to appease!
-    wrapper.current = (...args) => callback(...args);
-    wrapper.current!.update = (cb) => (callback = cb);
-  } else {
-    wrapper.current.update(callback!);
+    wrapper.current = (...args) => wrapper.current.callback(...args);
   }
+  wrapper.current.callback = callback;
 
   // Return the wrapper:
   return wrapper.current!;
